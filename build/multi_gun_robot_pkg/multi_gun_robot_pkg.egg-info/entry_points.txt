@@ -1,0 +1,3 @@
+[console_scripts]
+monitor = multi_gun_robot_pkg.monitor:main
+

@@ -1,0 +1,22 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/yeeun/urdf_ws/install/urdf_tutorial/lib/python3.10/site-packages",
+        "/home/yeeun/turtlebot3_ws/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/home/yeeun/turtlebot3_ws/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/home/yeeun/turtlebot3_ws/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/home/yeeun/B4_Fulfillment_ws/install/b4_fulfillment_interfaces/local/lib/python3.10/dist-packages",
+        "/home/yeeun/B4_Fulfillment_ws/install/b4_fulfillment/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/yeeun/urdf_ws/install/urdf_tutorial/lib/python3.10/site-packages",
+        "/home/yeeun/turtlebot3_ws/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/home/yeeun/turtlebot3_ws/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/home/yeeun/turtlebot3_ws/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/home/yeeun/B4_Fulfillment_ws/install/b4_fulfillment_interfaces/local/lib/python3.10/dist-packages",
+        "/home/yeeun/B4_Fulfillment_ws/install/b4_fulfillment/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}
