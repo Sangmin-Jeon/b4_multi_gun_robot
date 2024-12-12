@@ -59,9 +59,10 @@ class MainWindow(QMainWindow):
     def __init__(self, ros_node):
         super().__init__()
         self.ros_node = ros_node
-        self.ros_node.signal1.connect(self.update_position)
+        self.ros_node.signal1.connect(self.update_tb1_position)
+        self.ros_node.signal2.connect(self.update_tb2_position)
 
-        self.resize = (367, 290)
+        self.resize = (400, 300)
         self.dot_size = 2
 
         # Load map
@@ -77,8 +78,11 @@ class MainWindow(QMainWindow):
         self.map_x = -data['origin'][0]
         self.map_y = +data['origin'][1] + self.height * self.resolution
 
-        self.x = self.map_x
-        self.y = self.map_y
+        self.tb1_x = self.map_x
+        self.tb1_y = self.map_y
+
+        self.tb2_x = self.map_x
+        self.tb2_y = self.map_y
 
         # GUI setup
         self.init_ui()
@@ -88,33 +92,55 @@ class MainWindow(QMainWindow):
         self.label = QLabel(self)
         self.label.setGeometry(20, 20, 320, 320)
 
-    def update_position(self, message):
+    def update_tb1_position(self, message):
         odom_x = message[0]
         odom_y = message[1]
-        self.x = self.map_x + odom_x
-        self.y = self.map_y + odom_y
+        self.tb1_x = self.map_x + odom_x
+        self.tb1_y = self.map_y + (odom_y * -1)
 
-        print(f"x={self.x}, y={self.y}")
-        self.update_map()
+        print(f"tb1 - x={self.tb1_x}, y={self.tb1_y}")
+        self.update_positions()
 
-    def update_map(self):
+    def update_tb2_position(self, message):
+        odom_x = message[0]
+        odom_y = message[1]
+        self.tb2_x = self.map_x + odom_x
+        self.tb2_y = self.map_y + (odom_y * -1)
+
+        print(f"tb2 - x={self.tb2_x}, y={self.tb2_y}")
+        self.update_positions()
+
+    def update_positions(self):
         image_copy = self.image_rgb.copy()
         draw = ImageDraw.Draw(image_copy)
+        
+        # tb1 (blue) 원 그리기
         draw.ellipse((
-            self.x / self.resolution - self.dot_size,
-            self.y / self.resolution - self.dot_size,
-            self.x / self.resolution + self.dot_size,
-            self.y / self.resolution + self.dot_size),
+            self.tb1_x / self.resolution - self.dot_size,
+            self.tb1_y / self.resolution - self.dot_size,
+            self.tb1_x / self.resolution + self.dot_size,
+            self.tb1_y / self.resolution + self.dot_size),
+            fill='blue'
+        )
+        
+        # tb2 (red) 원 그리기
+        draw.ellipse((
+            self.tb2_x / self.resolution - self.dot_size,
+            self.tb2_y / self.resolution - self.dot_size,
+            self.tb2_x / self.resolution + self.dot_size,
+            self.tb2_y / self.resolution + self.dot_size),
             fill='red'
         )
 
-        image_rotated = image_copy.rotate(90, expand=True)
+        # 이미지를 회전, 크기 조정, 변환하여 표시
+        image_rotated = image_copy.rotate(0, expand=True)
         image_resized = image_rotated.resize(self.resize)
         pil_image = image_resized.convert('RGBA')
         data = pil_image.tobytes("raw", "RGBA")
         qimage = QImage(data, *self.resize, QImage.Format_RGBA8888)
         pixmap = QPixmap.fromImage(qimage)
         self.label.setPixmap(pixmap)
+
 
 
 def main():
