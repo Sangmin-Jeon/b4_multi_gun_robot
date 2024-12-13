@@ -1,5 +1,6 @@
 import sys, yaml, time, os
 import numpy as np
+from threading import Thread
 
 import rclpy
 from rclpy.node import Node
@@ -23,7 +24,6 @@ class RosNode(Node, QObject):
 
     tb1_img_sig = pyqtSignal(QImage)
     tb2_img_sig = pyqtSignal(QImage)
-    
 
     def __init__(self, node_name='ros_subscriber_node'):
         Node.__init__(self, node_name)
@@ -48,7 +48,6 @@ class RosNode(Node, QObject):
             callback_group=callbackGroup
         )
         
-        # Camera Image Subscriptions
         self.sub_tb1_camera_img = self.create_subscription(
             TopicImage, 
             '/tb1/camera/image_raw', 
@@ -120,7 +119,7 @@ class MainWindow(QMainWindow):
         self.node = node
         self.node.tb1_img_sig.connect(self.update_tb1_image) 
         self.node.tb2_img_sig.connect(self.update_tb2_image)
-        
+
         self.node.signal1.connect(self.update_tb1_position)
         self.node.signal2.connect(self.update_tb2_position)
 
@@ -163,7 +162,6 @@ class MainWindow(QMainWindow):
         self.title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.title_label)
 
-        # Horizontal layout for the two real-time images (tb1 and tb2)
         monitor_layer = QHBoxLayout()
 
         # tb1 이미지
@@ -179,15 +177,26 @@ class MainWindow(QMainWindow):
         layout.addLayout(monitor_layer)
 
         # Control layout (for Map + 버튼)
-        control_layout = QVBoxLayout()
+        control_layout = QHBoxLayout()
+        control_btn_layout = QVBoxLayout()
 
-        # Map Display Label
-        self.label = QLabel()
-        control_layout.addWidget(self.label)
+        # mini map 표시
+        self.mini_map_label = QLabel()
+        control_layout.addWidget(self.mini_map_label)
+
+        self.patrol_btn = QPushButton("순찰 시작")
+        control_btn_layout.addWidget(self.patrol_btn)
+
+        self.goback_btn = QPushButton("복귀")
+        control_btn_layout.addWidget(self.goback_btn)
+
+        control_layout.addLayout(control_btn_layout)
 
         layout.addLayout(control_layout)
 
-        # Render the initial map
+        self.patrol_btn.clicked.connect(self.start_patrol_callback)
+        self.goback_btn.clicked.connect(self.go_back_callback)
+
         self.render_initial_map()
 
     def render_initial_map(self):
@@ -196,7 +205,13 @@ class MainWindow(QMainWindow):
         data = pil_image.tobytes("raw", "RGBA") 
         qimage = QImage(data, *self.map_size, QImage.Format_RGBA8888) 
         pixmap = QPixmap.fromImage(qimage)  
-        self.label.setPixmap(pixmap)  
+        self.mini_map_label.setPixmap(pixmap)  
+
+    def start_patrol_callback(self):
+        print('순찰 시작')
+
+    def go_back_callback(self):
+        print('복귀')
 
     def update_tb1_image(self, qimg):
         pixmap = QPixmap.fromImage(qimg)
@@ -267,34 +282,31 @@ class MainWindow(QMainWindow):
         data = pil_image.tobytes("raw", "RGBA")
         qimage = QImage(data, *self.map_size, QImage.Format_RGBA8888)
         pixmap = QPixmap.fromImage(qimage)
-        self.label.setPixmap(pixmap)
+        self.mini_map_label.setPixmap(pixmap)
 
 
 
 
 def main():
-    # Initialize ROS
     rclpy.init()
-
-    # Create ROS node
     ros_node = RosNode()
 
-    # Create QApplication
     app = QApplication(sys.argv)
     gui = MainWindow(ros_node)
     gui.show()
 
-    # ROS Executor with MultiThreading
+    # ROS2 Spin을 별도 스레드에서 실행
     executor = MultiThreadedExecutor()
     executor.add_node(ros_node)
 
-    ros_thread = QTimer()
-    ros_thread.timeout.connect(executor.spin_once)
-    ros_thread.start(10)  # Process ROS callbacks every 10 ms
+    def ros_spin():
+        executor.spin()
+
+    ros_thread = Thread(target=ros_spin, daemon=True)
+    ros_thread.start()
 
     try:
         sys.exit(app.exec_())
-        
     finally:
         executor.shutdown()
         ros_node.destroy_node()
