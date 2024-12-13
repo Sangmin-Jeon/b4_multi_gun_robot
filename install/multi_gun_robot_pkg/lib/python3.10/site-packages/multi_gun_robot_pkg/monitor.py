@@ -10,7 +10,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from sensor_msgs.msg import Image as TopicImage
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer, QTime
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QComboBox, QCheckBox, QGridLayout,
@@ -25,7 +25,7 @@ class RosNode(Node, QObject):
     tb1_img_sig = pyqtSignal(QImage)
     tb2_img_sig = pyqtSignal(QImage)
 
-    def __init__(self, node_name='ros_subscriber_node'):
+    def __init__(self, node_name='RosNode'):
         Node.__init__(self, node_name)
         QObject.__init__(self)
 
@@ -84,32 +84,70 @@ class RosNode(Node, QObject):
 
     def sub_tb1_camera_img_callback(self, msg):
         try:
-            img_data = np.frombuffer(msg.data, dtype=np.uint8)
-            qt_image = QImage(
-                img_data, 
-                msg.width, 
-                msg.height, 
-                QImage.Format_BGR888 
-            )
-            self.tb1_img_sig.emit(qt_image)
+            # 이미지 포맷 설정
+            if msg.encoding == "mono8":
+                format = QImage.Format_Grayscale8
+            elif msg.encoding == "bgr8":
+                # BGR 포맷을 사용하려면 RGB로 변환 (Qt에서 BGR 포맷은 지원하지 않음)
+                format = QImage.Format_RGB888
+            else:
+                self.get_logger().error(f"Image pixel format {msg.encoding} not supported!")
+                return
+
+            # QImage로 변환
+            img_data = np.frombuffer(msg.data, dtype=np.uint8).reshape((msg.height, msg.width, 3))
+
+            # QImage 객체 생성
+            qimg = QImage(img_data.data, msg.width, msg.height, msg.width * 3, format)
+
+            # BGR에서 RGB로 채널 순서 바꾸기
+            if msg.encoding == "bgr8":
+                qimg = qimg.rgbSwapped()
+
+            # 유효한 이미지인지 확인
+            if qimg.isNull():
+                self.get_logger().error("Failed to read image!")
+                return
+            
+            # 이미지를 QLabel 등에 표시하거나 추가 처리
+            self.tb1_img_sig.emit(qimg)
 
         except Exception as e:
-            self.get_logger().error(f"Error in tb1_camera_img_callback: {e}")
+            self.get_logger().error(f"Error in image callback: {e}")
+
 
     def sub_tb2_camera_img_callback(self, msg):
         try:
-            img_data = np.frombuffer(msg.data, dtype=np.uint8)
-            qt_image = QImage(
-                img_data, 
-                msg.width, 
-                msg.height, 
-                QImage.Format_BGR888 
-            )
-            self.tb2_img_sig.emit(qt_image)
+            # 이미지 포맷 설정
+            if msg.encoding == "mono8":
+                format = QImage.Format_Grayscale8
+            elif msg.encoding == "bgr8":
+                # BGR 포맷을 사용하려면 RGB로 변환 (Qt에서 BGR 포맷은 지원하지 않음)
+                format = QImage.Format_RGB888
+            else:
+                self.get_logger().error(f"Image pixel format {msg.encoding} not supported!")
+                return
+
+            # QImage로 변환
+            img_data = np.frombuffer(msg.data, dtype=np.uint8).reshape((msg.height, msg.width, 3))
+
+            # QImage 객체 생성
+            qimg = QImage(img_data.data, msg.width, msg.height, msg.width * 3, format)
+
+            # BGR에서 RGB로 채널 순서 바꾸기
+            if msg.encoding == "bgr8":
+                qimg = qimg.rgbSwapped()
+
+            # 유효한 이미지인지 확인
+            if qimg.isNull():
+                self.get_logger().error("Failed to read image!")
+                return
+            
+            # 이미지를 QLabel 등에 표시하거나 추가 처리
+            self.tb2_img_sig.emit(qimg)
 
         except Exception as e:
-            self.get_logger().error(f"Error in tb2_camera_img_callback: {e}")
-
+            self.get_logger().error(f"Error in image callback: {e}")
 
 
 
@@ -164,14 +202,24 @@ class MainWindow(QMainWindow):
 
         monitor_layer = QHBoxLayout()
 
-        # tb1 이미지
+        # tb1
         self.real_time_image_1 = QLabel()  
         self.real_time_image_1.setFixedSize(500, 500)
+        # 배경을 검정색으로 설정
+        palette = self.real_time_image_1.palette()
+        palette.setColor(QPalette.Background, QColor(0, 0, 0))  # 검은색
+        self.real_time_image_1.setAutoFillBackground(True)  # 배경을 자동으로 채우도록 설정
+        self.real_time_image_1.setPalette(palette)
         monitor_layer.addWidget(self.real_time_image_1)
 
-        # tb2 이미지
+        # tb2
         self.real_time_image_2 = QLabel() 
         self.real_time_image_2.setFixedSize(500, 500)
+        # 배경을 검정색으로 설정
+        palette = self.real_time_image_2.palette()
+        palette.setColor(QPalette.Background, QColor(0, 0, 0))  # 검은색
+        self.real_time_image_2.setAutoFillBackground(True)  # 배경을 자동으로 채우도록 설정
+        self.real_time_image_2.setPalette(palette)
         monitor_layer.addWidget(self.real_time_image_2)
 
         layout.addLayout(monitor_layer)
@@ -214,26 +262,56 @@ class MainWindow(QMainWindow):
         print('복귀')
 
     def update_tb1_image(self, qimg):
-        pixmap = QPixmap.fromImage(qimg)
+        if qimg is None or qimg.isNull():
+            print("Invalid QImage received!")
+            return
 
-        # QLabel 크기에 맞춰 이미지 조정
-        pixmap = pixmap.scaled(
-            self.real_time_image_1.size(),
-            Qt.KeepAspectRatio,  # 이미지 비율 유지
-        )
+        # QLabel의 크기 확인
+        label_width = self.real_time_image_1.width()
+        label_height = self.real_time_image_1.height()
+        
+        if label_width == 0 or label_height == 0:
+            print("Invalid QLabel size!")
+            return
 
-        self.real_time_image_1.setPixmap(pixmap)
+        try:
+            # # 이미지를 크기 조정
+            # scaled_image = qimg.scaled(
+            #     label_width,
+            #     label_height,
+            #     Qt.KeepAspectRatio
+            # )
+
+            pixmap = QPixmap.fromImage(qimg)
+            self.real_time_image_1.setPixmap(pixmap)
+        except Exception as e:
+            print(f"Error during image update: {e}")
 
     def update_tb2_image(self, qimg):
-        pixmap = QPixmap.fromImage(qimg)
+        if qimg is None or qimg.isNull():
+            print("Invalid QImage received!")
+            return
 
-        # QLabel 크기에 맞춰 이미지 조정
-        pixmap = pixmap.scaled(
-            self.real_time_image_2.size(),
-            Qt.KeepAspectRatio,  # 이미지 비율 유지
-        )
+        # QLabel의 크기 확인
+        label_width = self.real_time_image_2.width()
+        label_height = self.real_time_image_2.height()
+        
+        if label_width == 0 or label_height == 0:
+            print("Invalid QLabel size!")
+            return
 
-        self.real_time_image_2.setPixmap(pixmap)
+        try:
+            # # 이미지를 크기 조정
+            # scaled_image = qimg.scaled(
+            #     label_width,
+            #     label_height,
+            #     Qt.KeepAspectRatio
+            # )
+
+            pixmap = QPixmap.fromImage(qimg)
+            self.real_time_image_2.setPixmap(pixmap)
+        except Exception as e:
+            print(f"Error during image update: {e}")
 
 
     def update_tb1_position(self, message):
