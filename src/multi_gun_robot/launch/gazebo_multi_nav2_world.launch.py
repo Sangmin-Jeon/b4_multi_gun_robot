@@ -40,7 +40,7 @@ def generate_launch_description():
     # Names and poses of the robots
     robots = [
         {'name': 'tb1', 'x_pose': '-4.409619070608956', 'y_pose': '0.965375600186779', 'z_pose': 0.01},
-        {'name': 'tb2', 'x_pose': '8.830634839403299', 'y_pose': '1.0622493509319912', 'z_pose': 0.01},
+        {'name': 'tb2', 'x_pose': '6.830634839403299', 'y_pose': '0.0622493509319912', 'z_pose': 0.01},
     ]
 
     TURTLEBOT3_MODEL = 'waffle'

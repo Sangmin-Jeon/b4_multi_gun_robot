@@ -1,10 +1,12 @@
 import sys, yaml, time, os
+import numpy as np
 
 import rclpy
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
 from geometry_msgs.msg import PoseWithCovarianceStamped
+from sensor_msgs.msg import Image as TopicImage
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer, QTime
 from PyQt5.QtGui import QPixmap, QImage
@@ -15,20 +17,19 @@ from PyQt5.QtWidgets import (
 )
 from PIL import Image, ImageDraw
 
-
 class RosNode(Node, QObject):
     signal1 = pyqtSignal(list)
     signal2 = pyqtSignal(list)
+
+    tb1_img_sig = pyqtSignal(QImage)
+    tb2_img_sig = pyqtSignal(QImage)
+    
 
     def __init__(self, node_name='ros_subscriber_node'):
         Node.__init__(self, node_name)
         QObject.__init__(self)
 
-        self.amcl_pose_x = 0
-        self.amcl_pose_y = 0
-        self.dot_size = 2
-        
-        callback_group = ReentrantCallbackGroup()
+        callbackGroup = ReentrantCallbackGroup()
 
         # AMCL Pose Subscription
         self.sub_tb1_amcl_pose = self.create_subscription(
@@ -36,7 +37,7 @@ class RosNode(Node, QObject):
             '/tb1/amcl_pose', 
             self.sub_tb1_amcl_pose_callback, 
             10, 
-            callback_group=callback_group
+            callback_group=callbackGroup
         )
 
         self.sub_tb2_amcl_pose = self.create_subscription(
@@ -44,7 +45,24 @@ class RosNode(Node, QObject):
             '/tb2/amcl_pose', 
             self.sub_tb2_amcl_pose_callback, 
             10, 
-            callback_group=callback_group
+            callback_group=callbackGroup
+        )
+        
+        # Camera Image Subscriptions
+        self.sub_tb1_camera_img = self.create_subscription(
+            TopicImage, 
+            '/tb1/camera/image_raw', 
+            self.sub_tb1_camera_img_callback, 
+            10, 
+            callback_group=callbackGroup
+        )
+
+        self.sub_tb2_camera_img = self.create_subscription(
+            TopicImage, 
+            '/tb2/camera/image_raw', 
+            self.sub_tb2_camera_img_callback, 
+            10, 
+            callback_group=callbackGroup
         )
 
     def sub_tb1_amcl_pose_callback(self, msg):
@@ -59,11 +77,50 @@ class RosNode(Node, QObject):
         self.get_logger().info(f'Received tb2 amcl_pose x: {self.amcl_pose_x}, y: {self.amcl_pose_y}')
         self.signal2.emit([self.amcl_pose_x, self.amcl_pose_y])
 
+    def sub_tb2_amcl_pose_callback(self, msg):
+        self.amcl_pose_x = msg.pose.pose.position.x
+        self.amcl_pose_y = msg.pose.pose.position.y
+        self.get_logger().info(f'Received tb2 amcl_pose x: {self.amcl_pose_x}, y: {self.amcl_pose_y}')
+        self.signal2.emit([self.amcl_pose_x, self.amcl_pose_y])
+
+    def sub_tb1_camera_img_callback(self, msg):
+        try:
+            img_data = np.frombuffer(msg.data, dtype=np.uint8)
+            qt_image = QImage(
+                img_data, 
+                msg.width, 
+                msg.height, 
+                QImage.Format_BGR888 
+            )
+            self.tb1_img_sig.emit(qt_image)
+
+        except Exception as e:
+            self.get_logger().error(f"Error in tb1_camera_img_callback: {e}")
+
+    def sub_tb2_camera_img_callback(self, msg):
+        try:
+            img_data = np.frombuffer(msg.data, dtype=np.uint8)
+            qt_image = QImage(
+                img_data, 
+                msg.width, 
+                msg.height, 
+                QImage.Format_BGR888 
+            )
+            self.tb2_img_sig.emit(qt_image)
+
+        except Exception as e:
+            self.get_logger().error(f"Error in tb2_camera_img_callback: {e}")
+
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self, node):
         super().__init__()
         self.node = node
+        self.node.tb1_img_sig.connect(self.update_tb1_image) 
+        self.node.tb2_img_sig.connect(self.update_tb2_image)
+        
         self.node.signal1.connect(self.update_tb1_position)
         self.node.signal2.connect(self.update_tb2_position)
 
@@ -76,7 +133,7 @@ class MainWindow(QMainWindow):
         get_map_yaml = os.path.join(cur_directory, 'src', 'multi_gun_robot', 'map', 'map_final.yaml')
         image = Image.open(get_map_pgm)
         self.width, self.height = image.size
-        self.rgb_image = image.convert('RGB')
+        self.rgb_image = image.convert('RGB')  # RGB로 변환
 
         with open(get_map_yaml, 'r') as file:
             data = yaml.safe_load(file)
@@ -91,10 +148,9 @@ class MainWindow(QMainWindow):
         self.tb2_x = self.map_x
         self.tb2_y = self.map_y
 
-        # GUI setup
-        self.init_ui()
+        self.set_layout()
 
-    def init_ui(self):
+    def set_layout(self):
         self.setWindowTitle("Kill Machine Monitor")
 
         # Main central widget layout
@@ -107,34 +163,32 @@ class MainWindow(QMainWindow):
         self.title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.title_label)
 
-        # # Horizontal layout for the two real-time images (tb1 and tb2)
-        # monitor_layer = QHBoxLayout()  # No need to pass central_widget here
+        # Horizontal layout for the two real-time images (tb1 and tb2)
+        monitor_layer = QHBoxLayout()
 
-        # # tb1 이미지
-        # self.real_time_image_1 = QLabel()  
-        # self.real_time_image_1.setFixedSize(500, 500)
-        # monitor_layer.addWidget(self.real_time_image_1)
+        # tb1 이미지
+        self.real_time_image_1 = QLabel()  
+        self.real_time_image_1.setFixedSize(500, 500)
+        monitor_layer.addWidget(self.real_time_image_1)
 
-        # # tb2 이미지
-        # self.real_time_image_2 = QLabel() 
-        # self.real_time_image_2.setFixedSize(500, 500)
-        # monitor_layer.addWidget(self.real_time_image_2)
-        
-        # layout.addLayout(monitor_layer)  # Add monitor_layer to the main layout
+        # tb2 이미지
+        self.real_time_image_2 = QLabel() 
+        self.real_time_image_2.setFixedSize(500, 500)
+        monitor_layer.addWidget(self.real_time_image_2)
+
+        layout.addLayout(monitor_layer)
 
         # Control layout (for Map + 버튼)
-        control_layout = QVBoxLayout()  # No need to pass central_widget here either
+        control_layout = QVBoxLayout()
 
         # Map Display Label
         self.label = QLabel()
         control_layout.addWidget(self.label)
 
-        # Add control_layout to the main layout
         layout.addLayout(control_layout)
 
         # Render the initial map
         self.render_initial_map()
-
 
     def render_initial_map(self):
         image_resized = self.rgb_image.resize(self.map_size) 
@@ -144,6 +198,27 @@ class MainWindow(QMainWindow):
         pixmap = QPixmap.fromImage(qimage)  
         self.label.setPixmap(pixmap)  
 
+    def update_tb1_image(self, qimg):
+        pixmap = QPixmap.fromImage(qimg)
+
+        # QLabel 크기에 맞춰 이미지 조정
+        pixmap = pixmap.scaled(
+            self.real_time_image_1.size(),
+            Qt.KeepAspectRatio,  # 이미지 비율 유지
+        )
+
+        self.real_time_image_1.setPixmap(pixmap)
+
+    def update_tb2_image(self, qimg):
+        pixmap = QPixmap.fromImage(qimg)
+
+        # QLabel 크기에 맞춰 이미지 조정
+        pixmap = pixmap.scaled(
+            self.real_time_image_2.size(),
+            Qt.KeepAspectRatio,  # 이미지 비율 유지
+        )
+
+        self.real_time_image_2.setPixmap(pixmap)
 
 
     def update_tb1_position(self, message):
