@@ -37,6 +37,7 @@
 /home/rokey/b4_multi_robot_ws/install/turtlebot3_multi_robot/share/turtlebot3_multi_robot//urdf/turtlebot3_burger.urdf
 /home/rokey/b4_multi_robot_ws/install/turtlebot3_multi_robot/share/turtlebot3_multi_robot//worlds/b4_map_1.world
 /home/rokey/b4_multi_robot_ws/install/turtlebot3_multi_robot/share/turtlebot3_multi_robot//worlds/multi_empty_world.world
+/home/rokey/b4_multi_robot_ws/install/turtlebot3_multi_robot/share/turtlebot3_multi_robot//worlds/b4_map_1_orgin.world
 /home/rokey/b4_multi_robot_ws/install/turtlebot3_multi_robot/share/turtlebot3_multi_robot//worlds/multi_robot_world.world
 /home/rokey/b4_multi_robot_ws/install/turtlebot3_multi_robot/share/turtlebot3_multi_robot//params/nav2_params.yaml
 /home/rokey/b4_multi_robot_ws/install/turtlebot3_multi_robot/share/turtlebot3_multi_robot/environment/multi_robot.dsv

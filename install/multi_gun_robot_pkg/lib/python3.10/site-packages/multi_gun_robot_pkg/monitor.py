@@ -1,14 +1,19 @@
-import sys
+import sys, yaml, time, os
+
 import rclpy
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
 from geometry_msgs.msg import PoseWithCovarianceStamped
-from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
+
+from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer, QTime
 from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QPushButton, QComboBox, QCheckBox, QGridLayout,
+    QTabWidget, QTableWidget, QTableWidgetItem, QSizePolicy, QScrollArea
+)
 from PIL import Image, ImageDraw
-import yaml
 
 
 class RosNode(Node, QObject):
@@ -56,22 +61,24 @@ class RosNode(Node, QObject):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, ros_node):
+    def __init__(self, node):
         super().__init__()
-        self.ros_node = ros_node
-        self.ros_node.signal1.connect(self.update_tb1_position)
-        self.ros_node.signal2.connect(self.update_tb2_position)
+        self.node = node
+        self.node.signal1.connect(self.update_tb1_position)
+        self.node.signal2.connect(self.update_tb2_position)
 
-        self.resize = (400, 300)
-        self.dot_size = 2
+        self.map_size = (400, 300)
+        self.dot_size = 4
 
-        # Load map
-        image = Image.open('/home/rokey/map_fin.pgm')
+        # map 가져오기
+        cur_directory = os.getcwd()
+        get_map_pgm = os.path.join(cur_directory, 'src', 'multi_gun_robot', 'map', 'map_final.pgm')
+        get_map_yaml = os.path.join(cur_directory, 'src', 'multi_gun_robot', 'map', 'map_final.yaml')
+        image = Image.open(get_map_pgm)
         self.width, self.height = image.size
-        self.image_rgb = image.convert('RGB')
+        self.rgb_image = image.convert('RGB')
 
-        # Load YAML metadata
-        with open('/home/rokey/map_fin.yaml', 'r') as file:
+        with open(get_map_yaml, 'r') as file:
             data = yaml.safe_load(file)
 
         self.resolution = data['resolution']
@@ -88,9 +95,56 @@ class MainWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("AMCL Pose Monitor")
-        self.label = QLabel(self)
-        self.label.setGeometry(20, 20, 320, 320)
+        self.setWindowTitle("Kill Machine Monitor")
+
+        # Main central widget layout
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+
+        # Title Label
+        self.title_label = QLabel('AMCL Pose Map')
+        self.title_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.title_label)
+
+        # # Horizontal layout for the two real-time images (tb1 and tb2)
+        # monitor_layer = QHBoxLayout()  # No need to pass central_widget here
+
+        # # tb1 이미지
+        # self.real_time_image_1 = QLabel()  
+        # self.real_time_image_1.setFixedSize(500, 500)
+        # monitor_layer.addWidget(self.real_time_image_1)
+
+        # # tb2 이미지
+        # self.real_time_image_2 = QLabel() 
+        # self.real_time_image_2.setFixedSize(500, 500)
+        # monitor_layer.addWidget(self.real_time_image_2)
+        
+        # layout.addLayout(monitor_layer)  # Add monitor_layer to the main layout
+
+        # Control layout (for Map + 버튼)
+        control_layout = QVBoxLayout()  # No need to pass central_widget here either
+
+        # Map Display Label
+        self.label = QLabel()
+        control_layout.addWidget(self.label)
+
+        # Add control_layout to the main layout
+        layout.addLayout(control_layout)
+
+        # Render the initial map
+        self.render_initial_map()
+
+
+    def render_initial_map(self):
+        image_resized = self.rgb_image.resize(self.map_size) 
+        pil_image = image_resized.convert('RGBA')  
+        data = pil_image.tobytes("raw", "RGBA") 
+        qimage = QImage(data, *self.map_size, QImage.Format_RGBA8888) 
+        pixmap = QPixmap.fromImage(qimage)  
+        self.label.setPixmap(pixmap)  
+
+
 
     def update_tb1_position(self, message):
         odom_x = message[0]
@@ -111,9 +165,9 @@ class MainWindow(QMainWindow):
         self.update_positions()
 
     def update_positions(self):
-        image_copy = self.image_rgb.copy()
+        image_copy = self.rgb_image.copy()
         draw = ImageDraw.Draw(image_copy)
-        
+
         # tb1 (blue) 원 그리기
         draw.ellipse((
             self.tb1_x / self.resolution - self.dot_size,
@@ -122,7 +176,7 @@ class MainWindow(QMainWindow):
             self.tb1_y / self.resolution + self.dot_size),
             fill='blue'
         )
-        
+
         # tb2 (red) 원 그리기
         draw.ellipse((
             self.tb2_x / self.resolution - self.dot_size,
@@ -133,13 +187,13 @@ class MainWindow(QMainWindow):
         )
 
         # 이미지를 회전, 크기 조정, 변환하여 표시
-        image_rotated = image_copy.rotate(0, expand=True)
-        image_resized = image_rotated.resize(self.resize)
+        image_resized = image_copy.resize(self.map_size)
         pil_image = image_resized.convert('RGBA')
         data = pil_image.tobytes("raw", "RGBA")
-        qimage = QImage(data, *self.resize, QImage.Format_RGBA8888)
+        qimage = QImage(data, *self.map_size, QImage.Format_RGBA8888)
         pixmap = QPixmap.fromImage(qimage)
         self.label.setPixmap(pixmap)
+
 
 
 
@@ -165,6 +219,7 @@ def main():
 
     try:
         sys.exit(app.exec_())
+        
     finally:
         executor.shutdown()
         ros_node.destroy_node()
