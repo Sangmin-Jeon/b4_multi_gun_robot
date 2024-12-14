@@ -1,4 +1,4 @@
-# Install script for directory: /home/rokey/b4_multi_robot_ws/src/multi_gun_robot
+# Install script for directory: /home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,12 +44,12 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_multi_robot/" TYPE DIRECTORY FILES
-    "/home/rokey/b4_multi_robot_ws/src/multi_gun_robot/launch"
-    "/home/rokey/b4_multi_robot_ws/src/multi_gun_robot/models"
-    "/home/rokey/b4_multi_robot_ws/src/multi_gun_robot/rviz"
-    "/home/rokey/b4_multi_robot_ws/src/multi_gun_robot/urdf"
-    "/home/rokey/b4_multi_robot_ws/src/multi_gun_robot/worlds"
-    "/home/rokey/b4_multi_robot_ws/src/multi_gun_robot/params"
+    "/home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot/launch"
+    "/home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot/models"
+    "/home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot/rviz"
+    "/home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot/urdf"
+    "/home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot/worlds"
+    "/home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot/params"
     )
 endif()
 
@@ -113,7 +113,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_multi_robot" TYPE FILE FILES "/home/rokey/b4_multi_robot_ws/src/multi_gun_robot/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/turtlebot3_multi_robot" TYPE FILE FILES "/home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot/package.xml")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)

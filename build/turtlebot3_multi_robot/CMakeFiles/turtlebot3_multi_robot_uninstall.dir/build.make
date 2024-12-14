@@ -53,7 +53,7 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/rokey/b4_multi_robot_ws/src/multi_gun_robot
+CMAKE_SOURCE_DIR = /home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot
@@ -82,6 +82,6 @@ CMakeFiles/turtlebot3_multi_robot_uninstall.dir/clean:
 .PHONY : CMakeFiles/turtlebot3_multi_robot_uninstall.dir/clean
 
 CMakeFiles/turtlebot3_multi_robot_uninstall.dir/depend:
-	cd /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rokey/b4_multi_robot_ws/src/multi_gun_robot /home/rokey/b4_multi_robot_ws/src/multi_gun_robot /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot/CMakeFiles/turtlebot3_multi_robot_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot /home/rokey/b4_multi_robot_ws/src/turtlebot3_multi_robot /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot /home/rokey/b4_multi_robot_ws/build/turtlebot3_multi_robot/CMakeFiles/turtlebot3_multi_robot_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/turtlebot3_multi_robot_uninstall.dir/depend
 

@@ -8,6 +8,8 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from sensor_msgs.msg import Image as TopicImage
+from nav2_msgs.action import NavigateToPose
+from rclpy.action import ActionClient
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer, QTime
 from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor
@@ -63,6 +65,10 @@ class RosNode(Node, QObject):
             10, 
             callback_group=callbackGroup
         )
+
+        self._action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+
+        self.current_waypoint_index = 0  # 현재 웨이포인트 인덱스
 
     def sub_tb1_amcl_pose_callback(self, msg):
         self.amcl_pose_x = msg.pose.pose.position.x
@@ -150,6 +156,45 @@ class RosNode(Node, QObject):
             self.get_logger().error(f"Error in image callback: {e}")
 
 
+    def move_to_next_waypoint(self, waypoints):
+        # 현재 인덱스가 웨이포인트 목록의 끝에 도달했는지 확인
+        if self.current_waypoint_index < len(waypoints):
+            _waypoint = waypoints[self.current_waypoint_index]
+            x, y, z, orientation_x, orientation_y, orientation_z, orientation_w = _waypoint
+            self.send_goal(x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
+            self.current_waypoint_index += 1
+        else:
+            self.current_waypoint_index = 0
+            self.get_logger().info('All waypoints have been reached.')
+
+    def send_goal(self, x, y, z=0.0, orientation_x=0.0, orientation_y=0.0, orientation_z=0.0, orientation_w=1.0):
+        goal_msg = NavigateToPose.Goal()
+
+        goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
+        goal_msg.pose.header.frame_id = 'map'
+        goal_msg.pose.pose.position.x = x
+        goal_msg.pose.pose.position.y = y
+        goal_msg.pose.pose.position.z = z
+        goal_msg.pose.pose.orientation.x = orientation_x
+        goal_msg.pose.pose.orientation.y = orientation_y
+        goal_msg.pose.pose.orientation.z = orientation_z
+        goal_msg.pose.pose.orientation.w = orientation_w
+
+        self.get_logger().info(f'Sending goal to robot: x={x}, y={y}, z={z}, orientation=({orientation_x}, {orientation_y}, {orientation_z}, {orientation_w})')
+        
+        self._action_client.wait_for_server()
+        send_goal_future = self._action_client.send_goal_async(goal_msg)
+        send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        result = future.result()
+        if result.accepted:
+            self.get_logger().info("Goal accepted!")
+            self.move_to_next_waypoint()  # 목표가 완료되면 다음 목표로 이동
+        else:
+            self.get_logger().info("Goal rejected!")
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self, node):
@@ -166,8 +211,8 @@ class MainWindow(QMainWindow):
 
         # map 가져오기
         cur_directory = os.getcwd()
-        get_map_pgm = os.path.join(cur_directory, 'src', 'multi_gun_robot', 'map', 'map_final.pgm')
-        get_map_yaml = os.path.join(cur_directory, 'src', 'multi_gun_robot', 'map', 'map_final.yaml')
+        get_map_pgm = os.path.join(cur_directory, 'src', 'turtlebot3_multi_robot', 'map', 'map_fin_b4.pgm')
+        get_map_yaml = os.path.join(cur_directory, 'src', 'turtlebot3_multi_robot', 'map', 'map_fin_b4.yaml')
         image = Image.open(get_map_pgm)
         self.width, self.height = image.size
         self.rgb_image = image.convert('RGB')  # RGB로 변환
@@ -256,7 +301,21 @@ class MainWindow(QMainWindow):
         self.mini_map_label.setPixmap(pixmap)  
 
     def start_patrol_callback(self):
-        print('순찰 시작')
+        print("순찰 시작")
+        self.move_patrol()
+
+    def move_patrol(self):
+        # tb2
+        # point1: - x=17.20729363590482, y=2.3576583605865693
+        # point2: - x=16.807592644482266, y=12.704814663816256
+        # point3: - x=11.839745532419517, y=11.035874886012357
+        # 여러 웨이포인트 정의 (x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
+        waypoints = [
+            (17.20729363590482, 2.3576583605865693, 0.0, 0.0, 0.0, 0.0, 1.0), 
+            (16.807592644482266, 12.704814663816256, 0.0, 0.0, 0.0, 0.0, 1.0), 
+            (11.839745532419517, 11.035874886012357, 0.0, 0.0, 0.0, 0.0, 1.0), 
+        ]
+        self.node.move_to_next_waypoint(waypoints)
 
     def go_back_callback(self):
         print('복귀')
