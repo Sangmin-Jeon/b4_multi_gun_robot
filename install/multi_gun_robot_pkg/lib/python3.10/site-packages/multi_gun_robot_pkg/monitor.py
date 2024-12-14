@@ -10,6 +10,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from sensor_msgs.msg import Image as TopicImage
 from nav2_msgs.action import NavigateToPose
 from rclpy.action import ActionClient
+from action_msgs.msg import GoalStatus
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer, QTime
 from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor
@@ -32,6 +33,8 @@ class RosNode(Node, QObject):
         QObject.__init__(self)
 
         callbackGroup = ReentrantCallbackGroup()
+
+        self.tb2_waypoints = None
 
         # AMCL Pose Subscription
         self.sub_tb1_amcl_pose = self.create_subscription(
@@ -66,7 +69,8 @@ class RosNode(Node, QObject):
             callback_group=callbackGroup
         )
 
-        self._action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        self._action_tb1_client = ActionClient(self, NavigateToPose, '/tb1/navigate_to_pose')
+        self._action_rb2_client = ActionClient(self, NavigateToPose, '/tb2/navigate_to_pose')
 
         self.current_waypoint_index = 0  # 현재 웨이포인트 인덱스
 
@@ -156,16 +160,22 @@ class RosNode(Node, QObject):
             self.get_logger().error(f"Error in image callback: {e}")
 
 
-    def move_to_next_waypoint(self, waypoints):
-        # 현재 인덱스가 웨이포인트 목록의 끝에 도달했는지 확인
-        if self.current_waypoint_index < len(waypoints):
-            _waypoint = waypoints[self.current_waypoint_index]
-            x, y, z, orientation_x, orientation_y, orientation_z, orientation_w = _waypoint
-            self.send_goal(x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
-            self.current_waypoint_index += 1
-        else:
-            self.current_waypoint_index = 0
+    def move_to_tb2_patrol(self):
+        if self.tb2_waypoints is None:
+            return
+
+        # 모든 waypoint를 순찰한 경우
+        if self.current_waypoint_index >= len(self.tb2_waypoints):
+            self.current_waypoint_index = 0 
             self.get_logger().info('All waypoints have been reached.')
+            # TODO: 순찰을 반복할지, 중단할지 결정하는 로직 추가
+
+            return
+
+        # 경로 이동
+        _waypoint = self.tb2_waypoints[self.current_waypoint_index]
+        x, y, z, orientation_x, orientation_y, orientation_z, orientation_w = _waypoint
+        self.send_goal(x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
 
     def send_goal(self, x, y, z=0.0, orientation_x=0.0, orientation_y=0.0, orientation_z=0.0, orientation_w=1.0):
         goal_msg = NavigateToPose.Goal()
@@ -182,17 +192,28 @@ class RosNode(Node, QObject):
 
         self.get_logger().info(f'Sending goal to robot: x={x}, y={y}, z={z}, orientation=({orientation_x}, {orientation_y}, {orientation_z}, {orientation_w})')
         
-        self._action_client.wait_for_server()
-        send_goal_future = self._action_client.send_goal_async(goal_msg)
+        self._action_rb2_client.wait_for_server()
+        send_goal_future = self._action_rb2_client.send_goal_async(goal_msg)
         send_goal_future.add_done_callback(self.goal_response_callback)
 
     def goal_response_callback(self, future):
-        result = future.result()
-        if result.accepted:
-            self.get_logger().info("Goal accepted!")
-            self.move_to_next_waypoint()  # 목표가 완료되면 다음 목표로 이동
-        else:
+        goal_handle = future.result()
+        if not goal_handle.accepted:
             self.get_logger().info("Goal rejected!")
+            return
+
+        self.get_logger().info("Goal accepted!")
+        goal_handle.get_result_async().add_done_callback(self.result_callback)
+
+    def result_callback(self, future):
+        status = future.result().status
+
+        if status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info("Goal succeeded! Moving to next waypoint.")
+            self.current_waypoint_index += 1
+            self.move_to_tb2_patrol()
+        else:
+            self.get_logger().info(f"Goal failed with status: {status}")
 
 
 
@@ -305,17 +326,42 @@ class MainWindow(QMainWindow):
         self.move_patrol()
 
     def move_patrol(self):
-        # tb2
-        # point1: - x=17.20729363590482, y=2.3576583605865693
-        # point2: - x=16.807592644482266, y=12.704814663816256
-        # point3: - x=11.839745532419517, y=11.035874886012357
+        # TODO: tb1 순찰
+
+        # tb2 순찰
         # 여러 웨이포인트 정의 (x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
+        '''
+        ros2 topic echo /tb2/amcl_pose
+
+        position:
+            x: 6.993136421755044
+            y: -0.06915555755597344
+            z: 0.0
+        orientation:
+            x: 0.0
+            y: 0.0
+            z: -0.999918030732297
+            w: 0.012803586077546756
+
+
+        position:
+            x: 8.831065093770341
+            y: 0.8258277232938658
+            z: 0.0
+        orientation:
+            x: 0.0
+            y: 0.0
+            z: 0.14054997361115115
+            w: 0.9900735856076076
+        '''
         waypoints = [
-            (17.20729363590482, 2.3576583605865693, 0.0, 0.0, 0.0, 0.0, 1.0), 
-            (16.807592644482266, 12.704814663816256, 0.0, 0.0, 0.0, 0.0, 1.0), 
-            (11.839745532419517, 11.035874886012357, 0.0, 0.0, 0.0, 0.0, 1.0), 
+            (8.831065093770341, 0.8258277232938658, 0.0, 0.0, 0.0, 0.14054997361115115, 0.9900735856076076), 
+            (6.993136421755044, -0.06915555755597344, 0.0, 0.0, 0.0, -0.999918030732297,  0.012803586077546756),
+            (5.726799351047864, -2.055284695054583, 0.0, 0.0, 0.0, -0.16680259157401098, 0.9859903120437815), 
         ]
-        self.node.move_to_next_waypoint(waypoints)
+        self.node.tb2_waypoints = waypoints
+        self.node.move_to_tb2_patrol()
+
 
     def go_back_callback(self):
         print('복귀')
