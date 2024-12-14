@@ -34,6 +34,7 @@ class RosNode(Node, QObject):
 
         callbackGroup = ReentrantCallbackGroup()
 
+        self.tb1_waypoints = None
         self.tb2_waypoints = None
 
         # AMCL Pose Subscription
@@ -72,7 +73,8 @@ class RosNode(Node, QObject):
         self._action_tb1_client = ActionClient(self, NavigateToPose, '/tb1/navigate_to_pose')
         self._action_rb2_client = ActionClient(self, NavigateToPose, '/tb2/navigate_to_pose')
 
-        self.current_waypoint_index = 0  # 현재 웨이포인트 인덱스
+        self.current_tb1_waypoint_index = 0  # 현재 웨이포인트 인덱스
+        self.current_tb2_waypoint_index = 0
 
     def sub_tb1_amcl_pose_callback(self, msg):
         self.amcl_pose_x = msg.pose.pose.position.x
@@ -160,24 +162,82 @@ class RosNode(Node, QObject):
             self.get_logger().error(f"Error in image callback: {e}")
 
 
-    def move_to_tb2_patrol(self):
-        if self.tb2_waypoints is None:
+    def move_to_tb1_patrol(self):
+        if self.tb1_waypoints is None:
             return
 
         # 모든 waypoint를 순찰한 경우
-        if self.current_waypoint_index >= len(self.tb2_waypoints):
-            self.current_waypoint_index = 0 
+        if self.current_tb1_waypoint_index >= len(self.tb1_waypoints):
+            self.current_tb1_waypoint_index = 0 
             self.get_logger().info('All waypoints have been reached.')
             # TODO: 순찰을 반복할지, 중단할지 결정하는 로직 추가
 
             return
 
         # 경로 이동
-        _waypoint = self.tb2_waypoints[self.current_waypoint_index]
+        _waypoint = self.tb1_waypoints[self.current_tb1_waypoint_index]
         x, y, z, orientation_x, orientation_y, orientation_z, orientation_w = _waypoint
-        self.send_goal(x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
+        self.send_tb1_goal(x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
 
-    def send_goal(self, x, y, z=0.0, orientation_x=0.0, orientation_y=0.0, orientation_z=0.0, orientation_w=1.0):
+
+
+    def send_tb1_goal(self, x, y, z=0.0, orientation_x=0.0, orientation_y=0.0, orientation_z=0.0, orientation_w=1.0):
+        goal_msg = NavigateToPose.Goal()
+
+        goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
+        goal_msg.pose.header.frame_id = 'map'
+        goal_msg.pose.pose.position.x = x
+        goal_msg.pose.pose.position.y = y
+        goal_msg.pose.pose.position.z = z
+        goal_msg.pose.pose.orientation.x = orientation_x
+        goal_msg.pose.pose.orientation.y = orientation_y
+        goal_msg.pose.pose.orientation.z = orientation_z
+        goal_msg.pose.pose.orientation.w = orientation_w
+
+        self.get_logger().info(f'Sending goal to robot: x={x}, y={y}, z={z}, orientation=({orientation_x}, {orientation_y}, {orientation_z}, {orientation_w})')
+        
+        self._action_tb1_client.wait_for_server()
+        send_goal_future = self._action_tb1_client.send_goal_async(goal_msg)
+        send_goal_future.add_done_callback(self.goal_tb1_response_callback)
+
+    def goal_tb1_response_callback(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info("Goal rejected!")
+            return
+
+        self.get_logger().info("Goal accepted!")
+        goal_handle.get_result_async().add_done_callback(self.result_tb1_callback)
+
+    def result_tb1_callback(self, future):
+        status = future.result().status
+
+        if status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info("Goal succeeded! Moving to next waypoint.")
+            self.current_tb1_waypoint_index += 1
+            self.move_to_tb1_patrol()
+        else:
+            self.get_logger().info(f"Goal failed with status: {status}")
+
+
+    def move_to_tb2_patrol(self):
+        if self.tb2_waypoints is None:
+            return
+
+        # 모든 waypoint를 순찰한 경우
+        if self.current_tb2_waypoint_index >= len(self.tb2_waypoints):
+            self.current_tb2_waypoint_index = 0 
+            self.get_logger().info('All waypoints have been reached.')
+            # TODO: 순찰을 반복할지, 중단할지 결정하는 로직 추가
+
+            return
+
+        # 경로 이동
+        _waypoint = self.tb2_waypoints[self.current_tb2_waypoint_index]
+        x, y, z, orientation_x, orientation_y, orientation_z, orientation_w = _waypoint
+        self.send_tb2_goal(x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
+
+    def send_tb2_goal(self, x, y, z=0.0, orientation_x=0.0, orientation_y=0.0, orientation_z=0.0, orientation_w=1.0):
         goal_msg = NavigateToPose.Goal()
 
         goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
@@ -194,23 +254,23 @@ class RosNode(Node, QObject):
         
         self._action_rb2_client.wait_for_server()
         send_goal_future = self._action_rb2_client.send_goal_async(goal_msg)
-        send_goal_future.add_done_callback(self.goal_response_callback)
+        send_goal_future.add_done_callback(self.goal_tb2_response_callback)
 
-    def goal_response_callback(self, future):
+    def goal_tb2_response_callback(self, future):
         goal_handle = future.result()
         if not goal_handle.accepted:
             self.get_logger().info("Goal rejected!")
             return
 
         self.get_logger().info("Goal accepted!")
-        goal_handle.get_result_async().add_done_callback(self.result_callback)
+        goal_handle.get_result_async().add_done_callback(self.result_tb2_callback)
 
-    def result_callback(self, future):
+    def result_tb2_callback(self, future):
         status = future.result().status
 
         if status == GoalStatus.STATUS_SUCCEEDED:
             self.get_logger().info("Goal succeeded! Moving to next waypoint.")
-            self.current_waypoint_index += 1
+            self.current_tb2_waypoint_index += 1
             self.move_to_tb2_patrol()
         else:
             self.get_logger().info(f"Goal failed with status: {status}")
@@ -327,6 +387,13 @@ class MainWindow(QMainWindow):
 
     def move_patrol(self):
         # TODO: tb1 순찰
+        tb1_waypoints = [
+            (8.831065093770341, 0.8258277232938658, 0.0, 0.0, 0.0, 0.14054997361115115, 0.9900735856076076), 
+            (6.993136421755044, -0.06915555755597344, 0.0, 0.0, 0.0, -0.999918030732297,  0.012803586077546756),
+            (5.726799351047864, -2.055284695054583, 0.0, 0.0, 0.0, -0.16680259157401098, 0.9859903120437815), 
+        ]
+        self.node.tb1_waypoints = tb1_waypoints
+        self.node.move_to_tb1_patrol()
 
         # tb2 순찰
         # 여러 웨이포인트 정의 (x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
@@ -354,16 +421,17 @@ class MainWindow(QMainWindow):
             z: 0.14054997361115115
             w: 0.9900735856076076
         '''
-        waypoints = [
+        tb2_waypoints = [
             (8.831065093770341, 0.8258277232938658, 0.0, 0.0, 0.0, 0.14054997361115115, 0.9900735856076076), 
             (6.993136421755044, -0.06915555755597344, 0.0, 0.0, 0.0, -0.999918030732297,  0.012803586077546756),
             (5.726799351047864, -2.055284695054583, 0.0, 0.0, 0.0, -0.16680259157401098, 0.9859903120437815), 
         ]
-        self.node.tb2_waypoints = waypoints
+        self.node.tb2_waypoints = tb2_waypoints
         self.node.move_to_tb2_patrol()
 
 
     def go_back_callback(self):
+        # TODO: 복귀 기능 구현
         print('복귀')
 
     def update_tb1_image(self, qimg):
