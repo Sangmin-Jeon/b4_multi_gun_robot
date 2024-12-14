@@ -36,6 +36,7 @@ class RosNode(Node, QObject):
 
         self.tb1_waypoints = None
         self.tb2_waypoints = None
+        self.is_detect = False
 
         # AMCL Pose Subscription
         self.sub_tb1_amcl_pose = self.create_subscription(
@@ -165,13 +166,17 @@ class RosNode(Node, QObject):
     def move_to_tb1_patrol(self):
         if self.tb1_waypoints is None:
             return
+        
+        if self.is_detect:
+            self.current_tb1_waypoint_index = 0 
+            return
 
         # 모든 waypoint를 순찰한 경우
         if self.current_tb1_waypoint_index >= len(self.tb1_waypoints):
             self.current_tb1_waypoint_index = 0 
             self.get_logger().info('All waypoints have been reached.')
             # TODO: 순찰을 반복할지, 중단할지 결정하는 로직 추가
-
+            self.move_to_tb1_patrol()
             return
 
         # 경로 이동
@@ -223,13 +228,17 @@ class RosNode(Node, QObject):
     def move_to_tb2_patrol(self):
         if self.tb2_waypoints is None:
             return
+        
+        if self.is_detect:
+            self.current_tb2_waypoint_index = 0 
+            return
 
         # 모든 waypoint를 순찰한 경우
         if self.current_tb2_waypoint_index >= len(self.tb2_waypoints):
             self.current_tb2_waypoint_index = 0 
             self.get_logger().info('All waypoints have been reached.')
             # TODO: 순찰을 반복할지, 중단할지 결정하는 로직 추가
-
+            self.move_to_tb2_patrol()
             return
 
         # 경로 이동
@@ -387,10 +396,42 @@ class MainWindow(QMainWindow):
 
     def move_patrol(self):
         # TODO: tb1 순찰
+        '''
+        position:
+            x: -4.909138493002045
+            y: 0.2814362862384074
+            z: 0.0
+        orientation:
+            x: 0.0
+            y: 0.0
+            z: -0.18987208367643849
+            w: 0.9818088367092483
+
+        position:
+            x: -3.87519353082685
+            y: 7.2925887149866
+            z: 0.0
+        orientation:
+            x: 0.0
+            y: 0.0
+            z: 0.11575822764056436
+            w: 0.9932774198246507
+
+        position:
+            x: -0.4624558095771992
+            y: -3.0876787502594336
+            z: 0.0
+        orientation:
+            x: 0.0
+            y: 0.0
+            z: -0.16318783232986706
+            w: 0.9865950189310096
+
+        '''
         tb1_waypoints = [
-            (8.831065093770341, 0.8258277232938658, 0.0, 0.0, 0.0, 0.14054997361115115, 0.9900735856076076), 
-            (6.993136421755044, -0.06915555755597344, 0.0, 0.0, 0.0, -0.999918030732297,  0.012803586077546756),
-            (5.726799351047864, -2.055284695054583, 0.0, 0.0, 0.0, -0.16680259157401098, 0.9859903120437815), 
+            (-4.909138493002045, 0.2814362862384074, 0.0, 0.0, 0.0, -0.18987208367643849, 0.9818088367092483), 
+            (-3.87519353082685, 7.2925887149866, 0.0, 0.0, 0.0, 0.11575822764056436, 0.9932774198246507),
+            (-0.4624558095771992, -3.0876787502594336, 0.0, 0.0, 0.0, -0.16318783232986706, 0.9865950189310096), 
         ]
         self.node.tb1_waypoints = tb1_waypoints
         self.node.move_to_tb1_patrol()
@@ -401,30 +442,40 @@ class MainWindow(QMainWindow):
         ros2 topic echo /tb2/amcl_pose
 
         position:
-            x: 6.993136421755044
-            y: -0.06915555755597344
+            x: 9.724727147486803
+            y: 1.1282920060342905
             z: 0.0
         orientation:
             x: 0.0
             y: 0.0
-            z: -0.999918030732297
-            w: 0.012803586077546756
-
+            z: 0.21110228503119507
+            w: 0.9774639764485482
 
         position:
-            x: 8.831065093770341
-            y: 0.8258277232938658
+            x: 9.26881605892118
+            y: 7.748670610189714
             z: 0.0
         orientation:
             x: 0.0
             y: 0.0
-            z: 0.14054997361115115
-            w: 0.9900735856076076
+            z: 0.16855217845158202
+            w: 0.9856927326196668
+
+        position:
+            x: 5.606099203609427
+            y: -1.3065951301641472
+            z: 0.0
+        orientation:
+            x: 0.0
+            y: 0.0
+            z: -0.16748830071882256
+            w: 0.9858740635204485
+
         '''
         tb2_waypoints = [
-            (8.831065093770341, 0.8258277232938658, 0.0, 0.0, 0.0, 0.14054997361115115, 0.9900735856076076), 
-            (6.993136421755044, -0.06915555755597344, 0.0, 0.0, 0.0, -0.999918030732297,  0.012803586077546756),
-            (5.726799351047864, -2.055284695054583, 0.0, 0.0, 0.0, -0.16680259157401098, 0.9859903120437815), 
+            (9.724727147486803, 1.1282920060342905, 0.0, 0.0, 0.0, 0.21110228503119507, 0.9774639764485482), 
+            (9.26881605892118, 7.748670610189714, 0.0, 0.0, 0.0, 0.16855217845158202, 0.9856927326196668),
+            (5.606099203609427, -1.3065951301641472, 0.0, 0.0, 0.0, -0.16748830071882256, 0.9858740635204485), 
         ]
         self.node.tb2_waypoints = tb2_waypoints
         self.node.move_to_tb2_patrol()
