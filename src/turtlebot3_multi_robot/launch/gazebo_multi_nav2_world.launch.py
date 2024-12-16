@@ -213,7 +213,6 @@ def generate_launch_description():
     ######################
     # Start rviz nodes and drive nodes after the last robot is spawned
     for robot in robots:
-
         namespace = [ '/' + robot['name'] ]
         x_pose_modified = float(robot['x_pose']) + 2.0
         y_pose_modified = float(robot['y_pose']) + 0.5

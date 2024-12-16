@@ -11,6 +11,7 @@ from sensor_msgs.msg import Image as TopicImage
 from nav2_msgs.action import NavigateToPose
 from rclpy.action import ActionClient
 from action_msgs.msg import GoalStatus
+from std_msgs.msg import String
 
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer, QTime
 from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor
@@ -71,6 +72,14 @@ class RosNode(Node, QObject):
             callback_group=callbackGroup
         )
 
+        self.sub_detect_person = self.create_subscription(
+            String, 
+            'person_topic', 
+            self.sub_detect_person_callback, 
+            10, 
+            callback_group=callbackGroup
+        )
+
         self._action_tb1_client = ActionClient(self, NavigateToPose, '/tb1/navigate_to_pose')
         self._action_rb2_client = ActionClient(self, NavigateToPose, '/tb2/navigate_to_pose')
 
@@ -83,20 +92,38 @@ class RosNode(Node, QObject):
     def sub_tb1_amcl_pose_callback(self, msg):
         self.amcl_pose_x = msg.pose.pose.position.x
         self.amcl_pose_y = msg.pose.pose.position.y
-        self.get_logger().info(f'Received tb1 amcl_pose x: {self.amcl_pose_x}, y: {self.amcl_pose_y}')
+        # self.get_logger().info(f'Received tb1 amcl_pose x: {self.amcl_pose_x}, y: {self.amcl_pose_y}')
         self.signal1.emit([self.amcl_pose_x, self.amcl_pose_y])
 
     def sub_tb2_amcl_pose_callback(self, msg):
         self.amcl_pose_x = msg.pose.pose.position.x
         self.amcl_pose_y = msg.pose.pose.position.y
-        self.get_logger().info(f'Received tb2 amcl_pose x: {self.amcl_pose_x}, y: {self.amcl_pose_y}')
+        # self.get_logger().info(f'Received tb2 amcl_pose x: {self.amcl_pose_x}, y: {self.amcl_pose_y}')
         self.signal2.emit([self.amcl_pose_x, self.amcl_pose_y])
 
-    def sub_tb2_amcl_pose_callback(self, msg):
-        self.amcl_pose_x = msg.pose.pose.position.x
-        self.amcl_pose_y = msg.pose.pose.position.y
-        self.get_logger().info(f'Received tb2 amcl_pose x: {self.amcl_pose_x}, y: {self.amcl_pose_y}')
-        self.signal2.emit([self.amcl_pose_x, self.amcl_pose_y])
+    def sub_detect_person_callback(self, msg):
+        data = msg.data.split('/')
+        x = float(data[0])
+        y = float(data[0])
+        z = float(data[0])
+        if len(data) >= 2:
+            tb1_waypoints = [
+                (x, y, z, 0.0, 0.0, 0.0, 1.0)
+            ]
+            self.tb1_waypoints = tb1_waypoints
+            self.move_to_tb1_patrol()
+            self.go_back_tb1 = True
+
+            tb2_waypoints = [
+                (x, y, z, 0.0, 0.0, 0.0, 1.0)
+            ]
+            self.tb2_waypoints = tb2_waypoints
+            self.move_to_tb2_patrol()
+            self.go_back_tb2 = True
+
+            self.get_logger().info("목표물로 이동 중...")
+
+        
 
     def sub_tb1_camera_img_callback(self, msg):
         try:
@@ -180,6 +207,7 @@ class RosNode(Node, QObject):
             self.current_tb1_waypoint_index = 0 
             self.get_logger().info('All waypoints have been reached.')
             self.move_to_tb1_patrol()
+            self.get_logger().info("tb1 복귀 중...")
             return
 
         # 경로 이동
@@ -214,7 +242,7 @@ class RosNode(Node, QObject):
             self.get_logger().info("Goal rejected!")
             return
 
-        self.get_logger().info("Goal accepted!")
+        self.get_logger().info("tb1 이동 중...")
         goal_handle.get_result_async().add_done_callback(self.result_tb1_callback)
 
     def result_tb1_callback(self, future):
@@ -235,6 +263,7 @@ class RosNode(Node, QObject):
         if self.is_detect or self.go_back_tb2:
             self.current_tb2_waypoint_index = 0 
             self.go_back_tb2 = False
+            self.get_logger().info("tb2 복귀 중...")
             return
 
         # 모든 waypoint를 순찰한 경우
@@ -274,7 +303,7 @@ class RosNode(Node, QObject):
             self.get_logger().info("Goal rejected!")
             return
 
-        self.get_logger().info("Goal accepted!")
+        self.get_logger().info("tb2 이동 중...")
         goal_handle.get_result_async().add_done_callback(self.result_tb2_callback)
 
     def result_tb2_callback(self, future):
@@ -394,7 +423,7 @@ class MainWindow(QMainWindow):
         self.mini_map_label.setPixmap(pixmap)  
 
     def start_patrol_callback(self):
-        print("순찰 시작")
+        print("tb1, tb2, 순찰 시작...")
         self.move_patrol()
 
     def move_patrol(self):
@@ -484,8 +513,6 @@ class MainWindow(QMainWindow):
 
 
     def go_back_callback(self):
-        # TODO: 복귀 기능 구현
-        print('복귀')
         '''
         tb1 init pose
         position:
