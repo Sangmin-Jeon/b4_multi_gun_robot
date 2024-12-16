@@ -1,0 +1,34 @@
+[1.489s] Invoking command in '/home/rokey/b4_multi_robot_ws/src/urdf_tutorial': PYTHONPATH=/home/rokey/b4_multi_robot_ws/build/urdf_tutorial/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/urdf_tutorial build --build-base /home/rokey/b4_multi_robot_ws/build/urdf_tutorial/build install --record /home/rokey/b4_multi_robot_ws/build/urdf_tutorial/install.log --single-version-externally-managed install_data
+[1.848s] running egg_info
+[1.848s] creating ../../build/urdf_tutorial/urdf_tutorial.egg-info
+[1.848s] writing ../../build/urdf_tutorial/urdf_tutorial.egg-info/PKG-INFO
+[1.849s] writing dependency_links to ../../build/urdf_tutorial/urdf_tutorial.egg-info/dependency_links.txt
+[1.849s] writing entry points to ../../build/urdf_tutorial/urdf_tutorial.egg-info/entry_points.txt
+[1.849s] writing requirements to ../../build/urdf_tutorial/urdf_tutorial.egg-info/requires.txt
+[1.849s] writing top-level names to ../../build/urdf_tutorial/urdf_tutorial.egg-info/top_level.txt
+[1.849s] writing manifest file '../../build/urdf_tutorial/urdf_tutorial.egg-info/SOURCES.txt'
+[1.850s] reading manifest file '../../build/urdf_tutorial/urdf_tutorial.egg-info/SOURCES.txt'
+[1.851s] writing manifest file '../../build/urdf_tutorial/urdf_tutorial.egg-info/SOURCES.txt'
+[1.851s] running build
+[1.851s] running install
+[1.851s] running install_data
+[1.851s] creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/ament_index
+[1.851s] creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/ament_index/resource_index
+[1.852s] creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/ament_index/resource_index/packages
+[1.852s] copying resource/urdf_tutorial -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/ament_index/resource_index/packages
+[1.852s] copying package.xml -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial
+[1.852s] creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+[1.852s] copying launch/sim.launch.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+[1.852s] copying launch/robot_5.launch.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+[1.852s] creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.852s] copying urdf/macros.xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.853s] copying urdf/gazebo.xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.853s] copying urdf/robot_5 .xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.853s] copying urdf/camera.xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.853s] copying urdf/lidar.xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+[1.853s] running install_egg_info
+[1.855s] Copying ../../build/urdf_tutorial/urdf_tutorial.egg-info to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/python3.10/site-packages/urdf_tutorial-0.0.0-py3.10.egg-info
+[1.856s] running install_scripts
+[1.877s] Installing projectile_spawner script to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/urdf_tutorial
+[1.878s] writing list of installed files to '/home/rokey/b4_multi_robot_ws/build/urdf_tutorial/install.log'
+[1.924s] Invoked command in '/home/rokey/b4_multi_robot_ws/src/urdf_tutorial' returned '0': PYTHONPATH=/home/rokey/b4_multi_robot_ws/build/urdf_tutorial/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/urdf_tutorial build --build-base /home/rokey/b4_multi_robot_ws/build/urdf_tutorial/build install --record /home/rokey/b4_multi_robot_ws/build/urdf_tutorial/install.log --single-version-externally-managed install_data

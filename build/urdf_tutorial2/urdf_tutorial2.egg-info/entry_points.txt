@@ -1,0 +1,4 @@
+[console_scripts]
+projectile_spawner = urdf_tutorial2.projectile_spawner:main
+projectile_spawner2 = urdf_tutorial2.projectile_spawner2:main
+

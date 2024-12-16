@@ -1,0 +1,32 @@
+running egg_info
+creating ../../build/urdf_tutorial/urdf_tutorial.egg-info
+writing ../../build/urdf_tutorial/urdf_tutorial.egg-info/PKG-INFO
+writing dependency_links to ../../build/urdf_tutorial/urdf_tutorial.egg-info/dependency_links.txt
+writing entry points to ../../build/urdf_tutorial/urdf_tutorial.egg-info/entry_points.txt
+writing requirements to ../../build/urdf_tutorial/urdf_tutorial.egg-info/requires.txt
+writing top-level names to ../../build/urdf_tutorial/urdf_tutorial.egg-info/top_level.txt
+writing manifest file '../../build/urdf_tutorial/urdf_tutorial.egg-info/SOURCES.txt'
+reading manifest file '../../build/urdf_tutorial/urdf_tutorial.egg-info/SOURCES.txt'
+writing manifest file '../../build/urdf_tutorial/urdf_tutorial.egg-info/SOURCES.txt'
+running build
+running install
+running install_data
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/ament_index
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/ament_index/resource_index
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/ament_index/resource_index/packages
+copying resource/urdf_tutorial -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/ament_index/resource_index/packages
+copying package.xml -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+copying launch/sim.launch.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+copying launch/robot_5.launch.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/launch
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+copying urdf/macros.xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+copying urdf/gazebo.xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+copying urdf/robot_5 .xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+copying urdf/camera.xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+copying urdf/lidar.xacro -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/share/urdf_tutorial/urdf
+running install_egg_info
+Copying ../../build/urdf_tutorial/urdf_tutorial.egg-info to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/python3.10/site-packages/urdf_tutorial-0.0.0-py3.10.egg-info
+running install_scripts
+Installing projectile_spawner script to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/urdf_tutorial
+writing list of installed files to '/home/rokey/b4_multi_robot_ws/build/urdf_tutorial/install.log'

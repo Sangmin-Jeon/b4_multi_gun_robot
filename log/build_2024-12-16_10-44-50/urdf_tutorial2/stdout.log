@@ -1,0 +1,43 @@
+running egg_info
+creating ../../build/urdf_tutorial2/urdf_tutorial2.egg-info
+writing ../../build/urdf_tutorial2/urdf_tutorial2.egg-info/PKG-INFO
+writing dependency_links to ../../build/urdf_tutorial2/urdf_tutorial2.egg-info/dependency_links.txt
+writing entry points to ../../build/urdf_tutorial2/urdf_tutorial2.egg-info/entry_points.txt
+writing requirements to ../../build/urdf_tutorial2/urdf_tutorial2.egg-info/requires.txt
+writing top-level names to ../../build/urdf_tutorial2/urdf_tutorial2.egg-info/top_level.txt
+writing manifest file '../../build/urdf_tutorial2/urdf_tutorial2.egg-info/SOURCES.txt'
+reading manifest file '../../build/urdf_tutorial2/urdf_tutorial2.egg-info/SOURCES.txt'
+writing manifest file '../../build/urdf_tutorial2/urdf_tutorial2.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build
+creating /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build/lib
+creating /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build/lib/urdf_tutorial2
+copying urdf_tutorial2/projectile_spawner.py -> /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build/lib/urdf_tutorial2
+copying urdf_tutorial2/projectile_spawner2.py -> /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build/lib/urdf_tutorial2
+copying urdf_tutorial2/__init__.py -> /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build/lib/urdf_tutorial2
+running install
+running install_lib
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/python3.10/site-packages/urdf_tutorial2
+copying /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build/lib/urdf_tutorial2/projectile_spawner.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/python3.10/site-packages/urdf_tutorial2
+copying /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build/lib/urdf_tutorial2/projectile_spawner2.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/python3.10/site-packages/urdf_tutorial2
+copying /home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/build/lib/urdf_tutorial2/__init__.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/python3.10/site-packages/urdf_tutorial2
+byte-compiling /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/python3.10/site-packages/urdf_tutorial2/projectile_spawner.py to projectile_spawner.cpython-310.pyc
+byte-compiling /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/python3.10/site-packages/urdf_tutorial2/projectile_spawner2.py to projectile_spawner2.cpython-310.pyc
+byte-compiling /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/python3.10/site-packages/urdf_tutorial2/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/ament_index
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/ament_index/resource_index
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/ament_index/resource_index/packages
+copying resource/urdf_tutorial2 -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/ament_index/resource_index/packages
+copying package.xml -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/urdf_tutorial2
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/urdf_tutorial2/launch
+copying launch/sim.launch.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/urdf_tutorial2/launch
+copying launch/robot_5.launch.py -> /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/urdf_tutorial2/launch
+creating /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/share/urdf_tutorial2/urdf
+running install_egg_info
+Copying ../../build/urdf_tutorial2/urdf_tutorial2.egg-info to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/python3.10/site-packages/urdf_tutorial2-0.0.0-py3.10.egg-info
+running install_scripts
+Installing projectile_spawner script to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/urdf_tutorial2
+Installing projectile_spawner2 script to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial2/lib/urdf_tutorial2
+writing list of installed files to '/home/rokey/b4_multi_robot_ws/build/urdf_tutorial2/install.log'

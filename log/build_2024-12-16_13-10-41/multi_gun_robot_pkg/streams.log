@@ -1,0 +1,24 @@
+[1.579s] Invoking command in '/home/rokey/b4_multi_robot_ws/src/multi_gun_robot_pkg': PYTHONPATH=/home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rokey/b4_multi_robot_ws/install/multi_gun_robot_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/multi_gun_robot_pkg build --build-base /home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/build install --record /home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/install.log --single-version-externally-managed install_data
+[1.921s] running egg_info
+[1.923s] writing ../../build/multi_gun_robot_pkg/multi_gun_robot_pkg.egg-info/PKG-INFO
+[1.923s] writing dependency_links to ../../build/multi_gun_robot_pkg/multi_gun_robot_pkg.egg-info/dependency_links.txt
+[1.924s] writing entry points to ../../build/multi_gun_robot_pkg/multi_gun_robot_pkg.egg-info/entry_points.txt
+[1.924s] writing requirements to ../../build/multi_gun_robot_pkg/multi_gun_robot_pkg.egg-info/requires.txt
+[1.924s] writing top-level names to ../../build/multi_gun_robot_pkg/multi_gun_robot_pkg.egg-info/top_level.txt
+[1.935s] reading manifest file '../../build/multi_gun_robot_pkg/multi_gun_robot_pkg.egg-info/SOURCES.txt'
+[1.939s] writing manifest file '../../build/multi_gun_robot_pkg/multi_gun_robot_pkg.egg-info/SOURCES.txt'
+[1.939s] running build
+[1.940s] running build_py
+[1.940s] copying multi_gun_robot_pkg/monitor.py -> /home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/build/lib/multi_gun_robot_pkg
+[1.941s] running install
+[1.943s] running install_lib
+[1.945s] copying /home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/build/lib/multi_gun_robot_pkg/monitor.py -> /home/rokey/b4_multi_robot_ws/install/multi_gun_robot_pkg/lib/python3.10/site-packages/multi_gun_robot_pkg
+[1.947s] byte-compiling /home/rokey/b4_multi_robot_ws/install/multi_gun_robot_pkg/lib/python3.10/site-packages/multi_gun_robot_pkg/monitor.py to monitor.cpython-310.pyc
+[1.958s] running install_data
+[1.959s] running install_egg_info
+[1.963s] removing '/home/rokey/b4_multi_robot_ws/install/multi_gun_robot_pkg/lib/python3.10/site-packages/multi_gun_robot_pkg-0.0.0-py3.10.egg-info' (and everything under it)
+[1.964s] Copying ../../build/multi_gun_robot_pkg/multi_gun_robot_pkg.egg-info to /home/rokey/b4_multi_robot_ws/install/multi_gun_robot_pkg/lib/python3.10/site-packages/multi_gun_robot_pkg-0.0.0-py3.10.egg-info
+[1.965s] running install_scripts
+[1.995s] Installing monitor script to /home/rokey/b4_multi_robot_ws/install/multi_gun_robot_pkg/lib/multi_gun_robot_pkg
+[1.995s] writing list of installed files to '/home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/install.log'
+[2.053s] Invoked command in '/home/rokey/b4_multi_robot_ws/src/multi_gun_robot_pkg' returned '0': PYTHONPATH=/home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rokey/b4_multi_robot_ws/install/multi_gun_robot_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/multi_gun_robot_pkg build --build-base /home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/build install --record /home/rokey/b4_multi_robot_ws/build/multi_gun_robot_pkg/install.log --single-version-externally-managed install_data

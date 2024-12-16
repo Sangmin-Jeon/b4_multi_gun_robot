@@ -1,0 +1,19 @@
+[1.541s] Invoking command in '/home/rokey/b4_multi_robot_ws/src/urdf_tutorial': PYTHONPATH=/home/rokey/b4_multi_robot_ws/build/urdf_tutorial/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/urdf_tutorial build --build-base /home/rokey/b4_multi_robot_ws/build/urdf_tutorial/build install --record /home/rokey/b4_multi_robot_ws/build/urdf_tutorial/install.log --single-version-externally-managed install_data
+[1.859s] running egg_info
+[1.861s] writing ../../build/urdf_tutorial/urdf_tutorial.egg-info/PKG-INFO
+[1.862s] writing dependency_links to ../../build/urdf_tutorial/urdf_tutorial.egg-info/dependency_links.txt
+[1.862s] writing entry points to ../../build/urdf_tutorial/urdf_tutorial.egg-info/entry_points.txt
+[1.863s] writing requirements to ../../build/urdf_tutorial/urdf_tutorial.egg-info/requires.txt
+[1.863s] writing top-level names to ../../build/urdf_tutorial/urdf_tutorial.egg-info/top_level.txt
+[1.865s] reading manifest file '../../build/urdf_tutorial/urdf_tutorial.egg-info/SOURCES.txt'
+[1.867s] writing manifest file '../../build/urdf_tutorial/urdf_tutorial.egg-info/SOURCES.txt'
+[1.868s] running build
+[1.868s] running install
+[1.868s] running install_data
+[1.869s] running install_egg_info
+[1.877s] removing '/home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/python3.10/site-packages/urdf_tutorial-0.0.0-py3.10.egg-info' (and everything under it)
+[1.878s] Copying ../../build/urdf_tutorial/urdf_tutorial.egg-info to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/python3.10/site-packages/urdf_tutorial-0.0.0-py3.10.egg-info
+[1.883s] running install_scripts
+[1.924s] Installing projectile_spawner script to /home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/urdf_tutorial
+[1.925s] writing list of installed files to '/home/rokey/b4_multi_robot_ws/build/urdf_tutorial/install.log'
+[1.984s] Invoked command in '/home/rokey/b4_multi_robot_ws/src/urdf_tutorial' returned '0': PYTHONPATH=/home/rokey/b4_multi_robot_ws/build/urdf_tutorial/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rokey/b4_multi_robot_ws/install/urdf_tutorial/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/urdf_tutorial build --build-base /home/rokey/b4_multi_robot_ws/build/urdf_tutorial/build install --record /home/rokey/b4_multi_robot_ws/build/urdf_tutorial/install.log --single-version-externally-managed install_data
