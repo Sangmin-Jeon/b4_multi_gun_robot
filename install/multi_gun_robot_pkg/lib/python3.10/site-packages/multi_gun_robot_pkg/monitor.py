@@ -77,6 +77,9 @@ class RosNode(Node, QObject):
         self.current_tb1_waypoint_index = 0  # 현재 웨이포인트 인덱스
         self.current_tb2_waypoint_index = 0
 
+        self.go_back_tb1 = False
+        self.go_back_tb2 = False
+
     def sub_tb1_amcl_pose_callback(self, msg):
         self.amcl_pose_x = msg.pose.pose.position.x
         self.amcl_pose_y = msg.pose.pose.position.y
@@ -167,15 +170,15 @@ class RosNode(Node, QObject):
         if self.tb1_waypoints is None:
             return
         
-        if self.is_detect:
+        if self.is_detect or self.go_back_tb1:
             self.current_tb1_waypoint_index = 0 
+            self.go_back_tb1 = False
             return
 
         # 모든 waypoint를 순찰한 경우
         if self.current_tb1_waypoint_index >= len(self.tb1_waypoints):
             self.current_tb1_waypoint_index = 0 
             self.get_logger().info('All waypoints have been reached.')
-            # TODO: 순찰을 반복할지, 중단할지 결정하는 로직 추가
             self.move_to_tb1_patrol()
             return
 
@@ -229,15 +232,15 @@ class RosNode(Node, QObject):
         if self.tb2_waypoints is None:
             return
         
-        if self.is_detect:
+        if self.is_detect or self.go_back_tb2:
             self.current_tb2_waypoint_index = 0 
+            self.go_back_tb2 = False
             return
 
         # 모든 waypoint를 순찰한 경우
         if self.current_tb2_waypoint_index >= len(self.tb2_waypoints):
             self.current_tb2_waypoint_index = 0 
             self.get_logger().info('All waypoints have been reached.')
-            # TODO: 순찰을 반복할지, 중단할지 결정하는 로직 추가
             self.move_to_tb2_patrol()
             return
 
@@ -395,7 +398,6 @@ class MainWindow(QMainWindow):
         self.move_patrol()
 
     def move_patrol(self):
-        # TODO: tb1 순찰
         '''
         position:
             x: -4.909138493002045
@@ -484,6 +486,45 @@ class MainWindow(QMainWindow):
     def go_back_callback(self):
         # TODO: 복귀 기능 구현
         print('복귀')
+        '''
+        tb1 init pose
+        position:
+            x: -3.0000000000002225
+            y: -5.551115123125783e-17
+            z: 0.0
+        orientation:
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+
+        tb2 init pose
+        position:
+            x: 7.000001428082192
+            y: -2.811760190235617e-07
+            z: 0.0
+        orientation:
+            x: 0.0
+            y: 0.0
+            z: -4.323153088593275e-06
+            w: 0.9999999999906551
+        '''
+
+        tb1_waypoints = [
+            (-3.0000000000002225, -5.551115123125783e-17, 0.0, 0.0, 0.0, 0.0, 1.0)
+        ]
+        self.node.tb1_waypoints = tb1_waypoints
+        self.node.move_to_tb1_patrol()
+        self.node.go_back_tb1 = True
+
+        tb2_waypoints = [
+            ( 7.000001428082192, -2.811760190235617e-07, 0.0, 0.0, 0.0, -4.323153088593275e-06, 0.9999999999906551)
+        ]
+        self.node.tb2_waypoints = tb2_waypoints
+        self.node.move_to_tb2_patrol()
+        self.node.go_back_tb2 = True
+
+        
 
     def update_tb1_image(self, qimg):
         if qimg is None or qimg.isNull():
